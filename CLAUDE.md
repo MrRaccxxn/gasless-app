@@ -11,14 +11,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Architecture Overview
 
-This is a Next.js 15 application using the App Router architecture with TypeScript and Tailwind CSS v4.
+This is a Next.js 15 gasless relayer application that enables ERC-20 token transfers on Sepolia without requiring users to hold native gas tokens. The backend acts as a trusted relayer that submits transactions on behalf of users.
 
 ### Key Structure
 - `src/app/` - App Router pages and layouts
-- `src/app/layout.tsx` - Root layout with Geist font configuration
-- `src/app/page.tsx` - Home page component
-- `src/app/globals.css` - Global styles
-- `public/` - Static assets (SVG icons)
+- `src/app/api/` - API routes for relay functionality
+- `src/components/` - React components for UI
+- `src/lib/` - Core services and utilities
+- `src/hooks/` - Custom React hooks
+- `src/contexts/` - React contexts
+- `abi/` - Smart contract ABIs
 
 ### Technology Stack
 - **Framework**: Next.js 15 with App Router
@@ -26,6 +28,9 @@ This is a Next.js 15 application using the App Router architecture with TypeScri
 - **Styling**: Tailwind CSS v4 with PostCSS
 - **Fonts**: Geist Sans and Geist Mono via next/font/google
 - **Linting**: ESLint with Next.js configuration
+- **Blockchain**: ethers.js v6 (backend) + wagmi v2 (frontend)
+- **State Management**: React Query (@tanstack/react-query)
+- **Validation**: Zod schemas
 
 ### Import Path Configuration
 The project uses `@/*` path mapping for imports from the `src/` directory (configured in tsconfig.json).
@@ -36,11 +41,17 @@ The project uses `@/*` path mapping for imports from the `src/` directory (confi
 - Path aliases: `@/*` maps to `./src/*`
 - All components are React Server Components by default (App Router)
 
-## Gasless Relayer Backend
+## Environment Variables
 
-This project implements a gasless relayer backend service that allows users to send ERC-20 tokens without holding native gas tokens. The backend acts as a trusted relayer that submits transactions on behalf of users.
+See `.env.example` for all required environment variables including:
+- `PRIVATE_KEY` - Relayer wallet private key
+- `RELAYER_CONTRACT` - GaslessRelayer contract address
+- `CHAIN_RPC_URL` - Sepolia RPC endpoint
+- `RECAPTCHA_SECRET` - Google reCAPTCHA v2 secret (optional)
+- `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` - reCAPTCHA site key (optional)
+- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` - WalletConnect project ID (optional)
 
-### API Endpoints
+## API Endpoints
 
 - `POST /api/relay` - Submit a signed meta-transfer for relay
 - `GET /api/status` - Get contract status and configuration
@@ -48,36 +59,51 @@ This project implements a gasless relayer backend service that allows users to s
 - `GET /api/token/[address]` - Get token whitelist status and user balances
 - `GET /api/tx/[hash]` - Get transaction status and receipt
 
-### Environment Variables Required
+## Core Components
 
-See `.env.example` for all required environment variables including:
-- `PRIVATE_KEY` - Relayer wallet private key
-- `RELAYER_CONTRACT` - GaslessRelayer contract address
-- `CHAIN_RPC_URL` - Sepolia RPC endpoint
-- `RECAPTCHA_SECRET` - Google reCAPTCHA v2 secret
+### Backend Services
+- **ContractService** (`src/lib/contract-service.ts`) - Main contract interaction service
+- **Rate Limiter** (`src/lib/rate-limiter.ts`) - In-memory rate limiting
+- **Logger** (`src/lib/logger.ts`) - Centralized logging
+- **Schemas** (`src/lib/schemas.ts`) - Zod validation schemas
+- **EIP-712 Utils** (`src/lib/eip712-utils.ts`) - EIP-712 signature utilities
 
-### Key Features
+### Frontend Components
+- **WalletConnection** - wagmi integration with MetaMask and WalletConnect
+- **TransferForm** - Complete form with EIP-712 signing
+- **TransactionStatus** - Real-time transaction tracking
+- **TokenSelector** - Dynamic token selection with balance display
+
+### Custom Hooks
+- **useContractData** - Contract status and configuration
+- **useUserData** - User nonce and statistics
+- **useRelayTransaction** - Transaction relay functionality
+
+## Key Features
 
 - EIP-712 signature validation for meta-transfers
 - EIP-2612 permit support for token approvals
 - Rate limiting by wallet address and gas usage
-- reCAPTCHA v2 validation
+- reCAPTCHA v2 validation (optional)
 - Comprehensive logging and error handling
 - Contract interaction with ethers.js
 - In-memory storage for MVP (rate limits, bans)
+- Responsive design with Tailwind CSS
 
-### Frontend Components
+## Security Considerations
 
-- **Wallet Connection**: wagmi integration with MetaMask and WalletConnect
-- **Token Selection**: Dynamic token selection with balance display
-- **Transfer Form**: Complete form with EIP-712 signing
-- **Transaction Status**: Real-time transaction tracking
-- **Responsive Design**: Mobile-friendly interface with Tailwind CSS
+- All environment variables containing secrets must be kept secure
+- EIP-712 signatures are validated on the backend
+- Rate limiting prevents abuse
+- Input validation using Zod schemas
+- Deadline validation prevents stale transactions
+- Contract pause functionality for emergency stops
 
-### Frontend Stack
+## Development Workflow
 
-- wagmi v2 for wallet connections
-- React Query for API state management
-- Tailwind CSS for styling
-- reCAPTCHA v2 for bot protection
-- TypeScript for type safety
+1. Configure environment variables from `.env.example`
+2. Install dependencies with `npm install`
+3. Start development server with `npm run dev`
+4. Connect wallet to Sepolia network
+5. Test gasless transfers through the UI
+6. Use API endpoints directly for testing backend functionality
