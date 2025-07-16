@@ -150,18 +150,18 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
 
   const addressInputClass = `px-6 py-6 rounded-full border-0 text-base transition-all duration-300 ${
     isDark
-      ? "bg-white text-gray-900 placeholder:text-gray-500"
+      ? "bg-gray-800 text-white placeholder:text-gray-400"
       : "bg-gray-100 text-gray-900 placeholder:text-gray-500"
   }`;
 
   const inputBaseClass = `px-4 py-3 rounded-full border-0 text-base transition-all duration-300 ${
     isDark
-      ? "bg-white text-gray-900 placeholder:text-gray-500"
+      ? "bg-gray-800 text-white placeholder:text-gray-400"
       : "bg-gray-100 text-gray-900 placeholder:text-gray-500"
   }`;
 
   const selectBaseClass = `rounded-full border-0 ${
-    isDark ? "bg-white text-gray-900" : "bg-gray-100 text-gray-900"
+    isDark ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-900"
   }`;
 
   return (
@@ -237,10 +237,10 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
             </div>
 
             {/* reCAPTCHA */}
-            <RecaptchaWrapper
+            {/* <RecaptchaWrapper
               onVerify={setRecaptchaToken}
               onError={() => setRecaptchaToken("")}
-            />
+            /> */}
 
             {/* Error Message */}
             {error && (
