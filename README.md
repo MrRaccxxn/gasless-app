@@ -1,36 +1,147 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gasless Relayer Backend
 
-## Getting Started
+A Next.js backend service that enables gasless ERC-20 token transfers on Sepolia. Users can send tokens without holding native gas tokens by signing meta-transactions that are relayed by this service.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Gasless Transfers**: Users sign EIP-712 meta-transactions off-chain
+- **EIP-2612 Permits**: Support for token approvals via permits
+- **Rate Limiting**: Prevent abuse with per-wallet rate limiting
+- **Security**: reCAPTCHA v2, signature validation, and comprehensive logging
+- **Monitoring**: Transaction status endpoints and user statistics
+
+## Quick Start
+
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Set up environment**:
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your configuration
+   ```
+
+3. **Run development server**:
+   ```bash
+   npm run dev
+   ```
+
+4. **Open the app**:
+   - Navigate to `http://localhost:3000`
+   - Connect your wallet
+   - Switch to Sepolia network
+   - Start transferring tokens!
+
+5. **Test the API**:
+   ```bash
+   curl http://localhost:3000/api/status
+   ```
+
+## API Endpoints
+
+### `POST /api/relay`
+Submit a signed meta-transfer for execution.
+
+**Request Body**:
+```json
+{
+  "metaTransfer": {
+    "owner": "0x...",
+    "token": "0x...",
+    "recipient": "0x...",
+    "amount": "1000000000000000000",
+    "fee": "10000000000000000",
+    "deadline": "1234567890",
+    "nonce": "0"
+  },
+  "permitData": {
+    "value": "1010000000000000000",
+    "deadline": "1234567890",
+    "v": 27,
+    "r": "0x...",
+    "s": "0x..."
+  },
+  "signature": "0x...",
+  "recaptchaToken": "token"
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### `GET /api/status`
+Get contract status and configuration.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### `GET /api/user/[address]`
+Get user's current nonce and usage statistics.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### `GET /api/token/[address]`
+Get token whitelist status and user balances.
 
-## Learn More
+### `GET /api/tx/[hash]`
+Get transaction status and receipt.
 
-To learn more about Next.js, take a look at the following resources:
+## Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Required environment variables (see `.env.example`):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `PRIVATE_KEY` - Relayer wallet private key
+- `RELAYER_CONTRACT` - GaslessRelayer contract address
+- `CHAIN_RPC_URL` - Sepolia RPC endpoint
+- `RECAPTCHA_SECRET` - Google reCAPTCHA v2 secret
+- `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` - Google reCAPTCHA v2 site key
+- `FEE_WALLET` - Wallet to receive fees
+- `WHITELISTED_TOKENS` - Comma-separated token addresses
+- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` - WalletConnect project ID (optional)
 
-## Deploy on Vercel
+## Architecture
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/api/           # Next.js API routes
+│   ├── relay/         # Main relay endpoint
+│   ├── status/        # Contract status
+│   ├── user/          # User information
+│   ├── token/         # Token information
+│   └── tx/            # Transaction monitoring
+├── lib/               # Core services
+│   ├── contract.ts    # Contract interactions
+│   ├── schemas.ts     # Zod validation schemas
+│   ├── recaptcha.ts   # reCAPTCHA validation
+│   ├── rate-limiter.ts # Rate limiting
+│   ├── logger.ts      # Logging service
+│   └── eip712-utils.ts # EIP-712 utilities
+└── abi/               # Contract ABI
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Security Features
+
+- **EIP-712 Signature Validation**: Prevents replay attacks
+- **Rate Limiting**: Per-wallet request and gas usage limits
+- **reCAPTCHA v2**: Prevents automated abuse
+- **Input Validation**: Comprehensive request validation with Zod
+- **Logging**: All transactions and errors are logged
+- **Deadline Validation**: Prevents stale transactions
+
+## Development
+
+Built with:
+- Next.js 15 (App Router)
+- TypeScript
+- ethers.js v6 (backend) + wagmi (frontend)
+- Zod validation
+- Tailwind CSS
+- React Query (@tanstack/react-query)
+- reCAPTCHA v2
+
+## Deployment
+
+The service is designed to run on Sepolia testnet. For production:
+
+1. Update environment variables for mainnet
+2. Configure proper database for rate limiting
+3. Set up monitoring and alerting
+4. Review security configurations
+
+## License
+
+This project is for educational and development purposes.
