@@ -1,147 +1,125 @@
-# Gasless Relayer Backend
+# Gasless Token Transfer App
 
-A Next.js backend service that enables gasless ERC-20 token transfers on Sepolia. Users can send tokens without holding native gas tokens by signing meta-transactions that are relayed by this service.
+A simple web app that lets you send ERC-20 tokens on Sepolia **without needing ETH for gas fees**. Just connect your wallet, sign the transaction, and we handle the rest!
 
-## Features
+## ✨ What This App Does
 
-- **Gasless Transfers**: Users sign EIP-712 meta-transactions off-chain
-- **EIP-2612 Permits**: Support for token approvals via permits
-- **Rate Limiting**: Prevent abuse with per-wallet rate limiting
-- **Security**: reCAPTCHA v2, signature validation, and comprehensive logging
-- **Monitoring**: Transaction status endpoints and user statistics
+- **Send tokens for free** - No ETH needed for gas
+- **Simple interface** - Connect wallet and transfer in seconds  
+- **Secure** - Your wallet stays safe, you just sign transactions
+- **Fast** - Transactions are processed by our relayer service
 
-## Quick Start
+## 🚀 Getting Started
 
-1. **Install dependencies**:
+### For Users
+1. Visit the app at `http://localhost:3000`
+2. Connect your wallet (MetaMask, WalletConnect, etc.)
+3. Make sure you're on **Sepolia testnet**
+4. Select a token and enter transfer details
+5. Sign the transaction - **no gas required!**
+
+### For Developers
+
+1. **Clone and install**:
    ```bash
+   git clone <repo-url>
+   cd gasless-app
    npm install
    ```
 
 2. **Set up environment**:
    ```bash
    cp .env.example .env.local
-   # Edit .env.local with your configuration
+   # Add your configuration to .env.local
    ```
 
-3. **Run development server**:
+3. **Run the app**:
    ```bash
    npm run dev
    ```
 
-4. **Open the app**:
-   - Navigate to `http://localhost:3000`
-   - Connect your wallet
-   - Switch to Sepolia network
-   - Start transferring tokens!
-
-5. **Test the API**:
-   ```bash
-   curl http://localhost:3000/api/status
+4. **Open in browser**:
+   ```
+   http://localhost:3000
    ```
 
-## API Endpoints
+## 🔧 Required Configuration
 
-### `POST /api/relay`
-Submit a signed meta-transfer for execution.
+Create a `.env.local` file with these settings:
 
-**Request Body**:
-```json
-{
-  "metaTransfer": {
-    "owner": "0x...",
-    "token": "0x...",
-    "recipient": "0x...",
-    "amount": "1000000000000000000",
-    "fee": "10000000000000000",
-    "deadline": "1234567890",
-    "nonce": "0"
-  },
-  "permitData": {
-    "value": "1010000000000000000",
-    "deadline": "1234567890",
-    "v": 27,
-    "r": "0x...",
-    "s": "0x..."
-  },
-  "signature": "0x...",
-  "recaptchaToken": "token"
-}
+```bash
+# Relayer Wallet (handles gas payments)
+PRIVATE_KEY=your_relayer_wallet_private_key_here
+RELAYER_CONTRACT=your_deployed_contract_address_here
+
+# Network
+CHAIN_RPC_URL=https://sepolia.infura.io/v3/your_project_id
+CHAIN_ID=11155111
+
+# Security
+RECAPTCHA_SECRET=your_recaptcha_secret_key
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_recaptcha_site_key
+
+# Optional
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_walletconnect_project_id
 ```
 
-### `GET /api/status`
-Get contract status and configuration.
+## 🛠 Built With
 
-### `GET /api/user/[address]`
-Get user's current nonce and usage statistics.
+- **Next.js 15** - React framework
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **wagmi** - Wallet connections
+- **ethers.js** - Blockchain interactions
 
-### `GET /api/token/[address]`
-Get token whitelist status and user balances.
+## 📱 Features
 
-### `GET /api/tx/[hash]`
-Get transaction status and receipt.
+- **Wallet Connection** - MetaMask, WalletConnect, and more
+- **Token Selection** - Choose from whitelisted tokens
+- **Real-time Status** - See transaction progress
+- **Dark/Light Mode** - Choose your preferred theme
+- **Mobile Friendly** - Works on all devices
 
-## Environment Variables
+## 🔒 How It Works
 
-Required environment variables (see `.env.example`):
+1. You sign a transaction off-chain (no gas needed)
+2. Our relayer receives your signed transaction
+3. The relayer pays the gas and submits it to the blockchain
+4. Your tokens are transferred successfully!
 
-- `PRIVATE_KEY` - Relayer wallet private key
-- `RELAYER_CONTRACT` - GaslessRelayer contract address
-- `CHAIN_RPC_URL` - Sepolia RPC endpoint
-- `RECAPTCHA_SECRET` - Google reCAPTCHA v2 secret
-- `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` - Google reCAPTCHA v2 site key
-- `FEE_WALLET` - Wallet to receive fees
-- `WHITELISTED_TOKENS` - Comma-separated token addresses
-- `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` - WalletConnect project ID (optional)
+## ⚠️ Important Notes
 
-## Architecture
+- This app works on **Sepolia testnet only**
+- You need the tokens you want to transfer in your wallet
+- The receiving address must be valid
+- Transactions have time limits (deadlines)
 
-```
-src/
-├── app/api/           # Next.js API routes
-│   ├── relay/         # Main relay endpoint
-│   ├── status/        # Contract status
-│   ├── user/          # User information
-│   ├── token/         # Token information
-│   └── tx/            # Transaction monitoring
-├── lib/               # Core services
-│   ├── contract.ts    # Contract interactions
-│   ├── schemas.ts     # Zod validation schemas
-│   ├── recaptcha.ts   # reCAPTCHA validation
-│   ├── rate-limiter.ts # Rate limiting
-│   ├── logger.ts      # Logging service
-│   └── eip712-utils.ts # EIP-712 utilities
-└── abi/               # Contract ABI
-```
+## 🆘 Troubleshooting
 
-## Security Features
+**Wallet won't connect?**
+- Make sure you're on Sepolia testnet
+- Try refreshing the page
+- Check if your wallet is unlocked
 
-- **EIP-712 Signature Validation**: Prevents replay attacks
-- **Rate Limiting**: Per-wallet request and gas usage limits
-- **reCAPTCHA v2**: Prevents automated abuse
-- **Input Validation**: Comprehensive request validation with Zod
-- **Logging**: All transactions and errors are logged
-- **Deadline Validation**: Prevents stale transactions
+**Transaction failed?**
+- Verify you have enough token balance
+- Check if the token is whitelisted
+- Make sure the recipient address is correct
 
-## Development
+**Need test tokens?**
+- Use Sepolia faucets to get test ETH
+- Use token faucets for test ERC-20 tokens
 
-Built with:
-- Next.js 15 (App Router)
-- TypeScript
-- ethers.js v6 (backend) + wagmi (frontend)
-- Zod validation
-- Tailwind CSS
-- React Query (@tanstack/react-query)
-- reCAPTCHA v2
+## 🚀 Deployment
 
-## Deployment
+This app is ready to deploy on:
+- Vercel (recommended)
+- Netlify  
+- Railway
+- Any platform that supports Next.js
 
-The service is designed to run on Sepolia testnet. For production:
+Just make sure to set your environment variables in your deployment platform.
 
-1. Update environment variables for mainnet
-2. Configure proper database for rate limiting
-3. Set up monitoring and alerting
-4. Review security configurations
+---
 
-## License
-
-This project is for educational and development purposes.
+**Happy transferring! 🎉**
