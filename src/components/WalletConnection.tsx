@@ -1,7 +1,7 @@
 "use client";
 
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
 export function WalletConnection() {
