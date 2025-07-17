@@ -18,6 +18,7 @@ import { parseAmount } from "@/lib/utils";
 import { useContractData, useUserData } from "@/hooks/useContractData";
 import { useRelayTransaction } from "@/hooks/useRelayTransaction";
 import { MetaTransfer } from "@/lib/schemas";
+import { alertUtils } from "@/lib/alert-store";
 
 interface TransferFormProps {
   onSuccess?: (txHash: string) => void;
@@ -76,8 +77,17 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
   }, [walletAddress, isExpanded]);
 
   const handleSend = async () => {
-    if (!address || !selectedCoin || !recaptchaToken) return;
+    // if (!address || !selectedCoin || !recaptchaToken) return;
 
+    // Show warning alert for development
+    alertUtils.warning("Currently working on this feature", "Development Notice", {
+      duration: 6000, // Show for 6 seconds
+    });
+
+    return; // Early return to prevent actual transaction processing
+
+    // Original transaction code (commented out for development)
+    /*
     setIsSubmitting(true);
     setError("");
 
@@ -136,6 +146,7 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
     } finally {
       setIsSubmitting(false);
     }
+    */
   };
 
   if (txHash) {
@@ -311,7 +322,7 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Total:</span>
                     <span className="font-semibold">
-                      {(parseFloat(amount) + parseFloat(fee)).toFixed(6)}{" "}
+                      {(parseFloat(amount) + parseFloat(fee)).toFixed(2)}{" "}
                       {selectedCoin.symbol}
                     </span>
                   </div>
