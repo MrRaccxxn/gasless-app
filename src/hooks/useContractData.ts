@@ -22,7 +22,7 @@ interface UserData {
   isBanned: boolean
 }
 
-export function useContractData(userAddress?: string) {
+export function useContractData(_userAddress?: string) {
   return useQuery<ContractData>({
     queryKey: ["contractData"],
     queryFn: async () => {

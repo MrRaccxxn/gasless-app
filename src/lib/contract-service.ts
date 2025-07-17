@@ -5,9 +5,9 @@ import gaslessABI from "../../abi/gasless.json";
 import "dotenv/config";
 
 // Environment variables (backend-only)
-const PRIVATE_KEY = process.env.PRIVATE_KEY!;
-const CHAIN_RPC_URL = process.env.CHAIN_RPC_URL!;
-const RELAYER_CONTRACT = process.env.RELAYER_CONTRACT!;
+const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
+const CHAIN_RPC_URL = process.env.CHAIN_RPC_URL || "";
+const RELAYER_CONTRACT = process.env.RELAYER_CONTRACT || "";
 
 // Check if environment variables are properly configured
 const isConfigured = () => {
@@ -201,14 +201,14 @@ export class ContractService {
 
       console.log("Transaction submitted:", tx.hash);
       return tx.hash;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error executing meta transfer:", error);
 
       // Parse contract errors
-      if (error.code === "CALL_EXCEPTION") {
-        if (error.data) {
+      if (error && typeof error === "object" && "code" in error && error.code === "CALL_EXCEPTION") {
+        if ("data" in error && error.data) {
           try {
-            const decodedError = contract.interface.parseError(error.data);
+            const decodedError = contract.interface.parseError(error.data as string);
             throw new Error(`Contract error: ${decodedError?.name || "Unknown"}`);
           } catch {
             throw new Error("Contract execution failed");
@@ -216,7 +216,8 @@ export class ContractService {
         }
       }
 
-      throw new Error("Failed to execute meta transfer");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      throw new Error(`Failed to execute meta transfer: ${errorMessage}`);
     }
   }
 

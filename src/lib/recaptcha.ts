@@ -1,4 +1,4 @@
-const _RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET!;
+const _RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET || "";
 
 interface _RecaptchaResponse {
   success: boolean;

@@ -44,17 +44,17 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
   const [txHash, setTxHash] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  const { data: contractData } = useContractData();
+  const { data: _contractData } = useContractData();
   const { data: userData } = useUserData(address);
-  const { relayTransaction, relayTransactionAsync } = useRelayTransaction();
+  const { relayTransactionAsync } = useRelayTransaction();
 
   const selectedCoin = coins.find((c) => c.value === coin) || coins[0];
   const fee = "0.001";
 
   // Simple ETH address validation (starts with 0x and is 42 characters long)
-  const validateEthAddress = (address: string) => {
+  const validateEthAddress = (addr: string) => {
     const ethAddressRegex = /^0x[a-fA-F0-9]{40}$/;
-    return ethAddressRegex.test(address);
+    return ethAddressRegex.test(addr);
   };
 
   useEffect(() => {
@@ -100,8 +100,8 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
         ).toString(),
         deadline: metaTransfer.deadline,
         v: 27,
-        r: "0x" + "0".repeat(64),
-        s: "0x" + "0".repeat(64),
+        r: `0x${"0".repeat(64)}`,
+        s: `0x${"0".repeat(64)}`,
       };
 
       const result = await relayTransactionAsync({
@@ -123,8 +123,9 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
       } else {
         setError(result.error || "Transaction failed");
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to submit transaction");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error";
+      setError(errorMessage || "Failed to submit transaction");
     } finally {
       setIsSubmitting(false);
     }

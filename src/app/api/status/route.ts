@@ -15,11 +15,11 @@ interface StatusResponse {
   error?: string;
 }
 
-export async function GET(request: NextRequest): Promise<NextResponse<StatusResponse>> {
+export async function GET(_request: NextRequest): Promise<NextResponse<StatusResponse>> {
   try {
     console.log("Status endpoint hit");
 
-    const contractAddress = process.env.RELAYER_CONTRACT!;
+    const contractAddress = process.env.RELAYER_CONTRACT;
     const chainId = parseInt(process.env.CHAIN_ID || "11155111");
 
     console.log("Contract address", contractAddress);

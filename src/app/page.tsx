@@ -2,16 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import { Moon, Sun, Power, Zap, Link, Shield } from "lucide-react";
+import { Moon, Sun, Power } from "lucide-react";
 import { WalletConnection } from "@/components/WalletConnection";
 import { TransferForm } from "@/components/TransferForm";
 import { useContractData } from "@/hooks/useContractData";
 
 export default function Home() {
   const { isConnected, chain, address } = useAccount();
-  const { data: contractData, isLoading, error } = useContractData();
+  const { data: contractData, error } = useContractData();
   const [mounted, setMounted] = useState(false);
-  const [walletAddress] = useState("");
+  const [_walletAddress] = useState("");
   const [isDark, setIsDark] = useState(true);
 
   console.log("isConnected isConnected", address);
@@ -23,11 +23,6 @@ export default function Home() {
   const toggleTheme = () => {
     setIsDark(!isDark);
     document.documentElement.classList.toggle("dark");
-  };
-
-  const handleConnect = () => {
-    console.log("Connecting to wallet address:", walletAddress);
-    // This will be handled by the existing WalletConnection component
   };
 
   const isWrongNetwork = chain?.id !== 11155111; // Sepolia

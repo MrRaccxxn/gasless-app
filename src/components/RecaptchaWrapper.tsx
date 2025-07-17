@@ -8,7 +8,7 @@ interface RecaptchaWrapperProps {
   onError: () => void
 }
 
-export function RecaptchaWrapper({ onVerify, onError }: RecaptchaWrapperProps) {
+export function RecaptchaWrapper({ onVerify, onError: _onError }: RecaptchaWrapperProps) {
   // reCAPTCHA is disabled - automatically call onVerify with a dummy token
   useEffect(() => {
     onVerify("disabled-token");

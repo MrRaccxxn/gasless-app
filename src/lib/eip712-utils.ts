@@ -35,7 +35,7 @@ export function createPermitTypedData(
   deadline: string,
   chainId: number,
   tokenName: string,
-  tokenVersion: string = "1",
+  tokenVersion = "1",
 ) {
   return {
     domain: {
@@ -65,7 +65,7 @@ export function createPermitTypedData(
 }
 
 // Helper function to get current timestamp + buffer for deadline
-export function getDeadline(bufferMinutes: number = 10): string {
+export function getDeadline(bufferMinutes = 10): string {
   const now = Math.floor(Date.now() / 1000);
   const deadline = now + (bufferMinutes * 60);
   return deadline.toString();

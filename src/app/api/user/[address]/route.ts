@@ -22,7 +22,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ address: string }> },
 ): Promise<NextResponse<UserInfoResponse>> {
-  let address: string = "unknown";
+  let address = "unknown";
   try {
     const paramsResolved = await params;
     address = paramsResolved.address;
@@ -54,10 +54,12 @@ export async function GET(
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
     logger.error("User info endpoint error", {
-      error: error.message,
-      stack: error.stack,
+      error: errorMessage,
+      stack: errorStack,
       address: address,
     });
 

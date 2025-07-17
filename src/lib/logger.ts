@@ -12,13 +12,13 @@ interface LogEntry {
   timestamp: string;
   level: LogLevel;
   message: string;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
 }
 
 export class Logger {
   private isDevelopment = process.env.NODE_ENV === "development";
 
-  private formatMessage(level: LogLevel, message: string, meta?: Record<string, any>): LogEntry {
+  private formatMessage(level: LogLevel, message: string, meta?: Record<string, unknown>): LogEntry {
     return {
       timestamp: new Date().toISOString(),
       level,
@@ -27,7 +27,7 @@ export class Logger {
     };
   }
 
-  private log(level: LogLevel, message: string, meta?: Record<string, any>): void {
+  private log(level: LogLevel, message: string, meta?: Record<string, unknown>): void {
     const entry = this.formatMessage(level, message, meta);
 
     if (this.isDevelopment) {
@@ -42,26 +42,26 @@ export class Logger {
     }
   }
 
-  error(message: string, meta?: Record<string, any>): void {
+  error(message: string, meta?: Record<string, unknown>): void {
     this.log(LogLevel.ERROR, message, meta);
   }
 
-  warn(message: string, meta?: Record<string, any>): void {
+  warn(message: string, meta?: Record<string, unknown>): void {
     this.log(LogLevel.WARN, message, meta);
   }
 
-  info(message: string, meta?: Record<string, any>): void {
+  info(message: string, meta?: Record<string, unknown>): void {
     this.log(LogLevel.INFO, message, meta);
   }
 
-  debug(message: string, meta?: Record<string, any>): void {
+  debug(message: string, meta?: Record<string, unknown>): void {
     if (this.isDevelopment) {
       this.log(LogLevel.DEBUG, message, meta);
     }
   }
 
   // Specific logging methods for relay operations
-  relayAttempt(userAddress: string, tokenAddress: string, amount: string, meta?: Record<string, any>): void {
+  relayAttempt(userAddress: string, tokenAddress: string, amount: string, meta?: Record<string, unknown>): void {
     this.info("Relay attempt started", {
       userAddress,
       tokenAddress,
@@ -80,7 +80,7 @@ export class Logger {
     });
   }
 
-  relayFailure(userAddress: string, tokenAddress: string, amount: string, error: string, meta?: Record<string, any>): void {
+  relayFailure(userAddress: string, tokenAddress: string, amount: string, error: string, meta?: Record<string, unknown>): void {
     this.error("Relay transaction failed", {
       userAddress,
       tokenAddress,
@@ -97,7 +97,7 @@ export class Logger {
     });
   }
 
-  securityViolation(type: string, identifier: string, details: Record<string, any>): void {
+  securityViolation(type: string, identifier: string, details: Record<string, unknown>): void {
     this.error("Security violation detected", {
       type,
       identifier,
@@ -111,7 +111,7 @@ export class Logger {
     });
   }
 
-  validationError(endpoint: string, errors: any, identifier?: string): void {
+  validationError(endpoint: string, errors: unknown, identifier?: string): void {
     this.warn("Validation error", {
       endpoint,
       errors,

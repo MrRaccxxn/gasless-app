@@ -10,18 +10,18 @@ interface TransactionResponse {
     blockNumber?: number;
     gasUsed?: string;
     confirmations?: number;
-    receipt?: any;
+    receipt?: object | null;
   };
   error?: string;
 }
 
-const provider = new ethers.JsonRpcProvider(process.env.CHAIN_RPC_URL!);
+const provider = new ethers.JsonRpcProvider(process.env.CHAIN_RPC_URL);
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ hash: string }> },
 ): Promise<NextResponse<TransactionResponse>> {
-  let txHash: string = "unknown";
+  let txHash = "unknown";
   try {
     const paramsResolved = await params;
     txHash = paramsResolved.hash;
@@ -87,10 +87,12 @@ export async function GET(
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
     logger.error("Transaction status endpoint error", {
-      error: error.message,
-      stack: error.stack,
+      error: errorMessage,
+      stack: errorStack,
       txHash: txHash,
     });
 

@@ -2,12 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Development Commands
+# Bash commands
+- npm run build: Build the project
+- npm run lint: Run ESLint with strict --max-warnings=0 setting
+- npm run lint:fix: Run ESLint with auto-fix and strict settings
+- npm run type-check: Run TypeScript type checking
+- npm run pre-deploy: Run full pre-deployment checks (lint + type-check + build)
 
-- `npm run dev` - Start development server with Turbopack (Next.js 15)
-- `npm run build` - Build production bundle
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint with Next.js configuration
+# Code style
+- Use ES modules (import/export) syntax, not CommonJS (require)
+- Destructure imports when possible (eg. import { foo } from 'bar')
+
+# Workflow
+- ALWAYS run `npm run pre-deploy` before any deployment or when making significant changes
+- This ensures strict linting (max-warnings=0), type checking, and successful build
+- Be sure to typecheck when you're done making a series of code changes
+- Prefer running single tests, and not the whole test suite, for performance
 
 ## Architecture Overview
 
