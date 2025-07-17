@@ -20,10 +20,12 @@ interface UserInfoResponse {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { address: string } },
+  { params }: { params: Promise<{ address: string }> },
 ): Promise<NextResponse<UserInfoResponse>> {
+  let address: string = "unknown";
   try {
-    const address = params.address;
+    const paramsResolved = await params;
+    address = paramsResolved.address;
 
     // Validate address format
     if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
@@ -56,7 +58,7 @@ export async function GET(
     logger.error("User info endpoint error", {
       error: error.message,
       stack: error.stack,
-      address: params.address,
+      address: address,
     });
 
     return NextResponse.json(

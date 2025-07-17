@@ -209,7 +209,7 @@ export class ContractService {
         if (error.data) {
           try {
             const decodedError = contract.interface.parseError(error.data);
-            throw new Error(`Contract error: ${decodedError.name}`);
+            throw new Error(`Contract error: ${decodedError?.name || "Unknown"}`);
           } catch {
             throw new Error("Contract execution failed");
           }

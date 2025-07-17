@@ -6,7 +6,7 @@ export function createEIP712TypedData(metaTransfer: MetaTransfer) {
   return {
     domain: EIP712_DOMAIN,
     types: EIP712_TYPES,
-    primaryType: "MetaTransfer",
+    primaryType: "MetaTransfer" as const,
     message: {
       owner: metaTransfer.owner,
       token: metaTransfer.token,
@@ -42,7 +42,7 @@ export function createPermitTypedData(
       name: tokenName,
       version: tokenVersion,
       chainId,
-      verifyingContract: tokenAddress,
+      verifyingContract: tokenAddress as `0x${string}`,
     },
     types: {
       Permit: [
@@ -53,7 +53,7 @@ export function createPermitTypedData(
         { name: "deadline", type: "uint256" },
       ],
     },
-    primaryType: "Permit",
+    primaryType: "Permit" as const,
     message: {
       owner,
       spender,

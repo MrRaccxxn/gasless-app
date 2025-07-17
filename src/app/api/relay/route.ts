@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { RelayRequestSchema, RelayResponse } from "@/lib/schemas";
 import { contractService } from "@/lib/contract-service";
-import { recaptchaService } from "@/lib/recaptcha"; // Modified to always return true
+// import { recaptchaService } from "@/lib/recaptcha"; // Modified to always return true
 import { rateLimiter } from "@/lib/rate-limiter";
 import { logger } from "@/lib/logger";
 
@@ -31,14 +31,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<RelayResp
     // Validate input schema
     const validationResult = RelayRequestSchema.safeParse(body);
     if (!validationResult.success) {
-      logger.validationError("/api/relay", validationResult.error.errors, clientIP);
+      // logger.validationError("/api/relay", validationResult.error.errors, clientIP);
       return NextResponse.json(
         { success: false, error: "Invalid request format" },
         { status: 400 },
       );
     }
 
-    const { metaTransfer, permitData, signature, recaptchaToken } = validationResult.data;
+    const { metaTransfer, permitData, signature } = validationResult.data;
     const userAddress = metaTransfer.owner;
 
     // Log relay attempt
@@ -67,14 +67,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<RelayResp
     }
 
     // Verify reCAPTCHA - DISABLED (always returns true)
-    const recaptchaValid = await recaptchaService.verifyToken(recaptchaToken, clientIP);
-    if (!recaptchaValid) {
-      logger.recaptchaFailure(userAddress);
-      return NextResponse.json(
-        { success: false, error: "reCAPTCHA verification failed" },
-        { status: 400 },
-      );
-    }
+    // const recaptchaValid = await recaptchaService.verifyToken(recaptchaToken, clientIP);
+    // if (!recaptchaValid) {
+    //   logger.recaptchaFailure(userAddress);
+    //   return NextResponse.json(
+    //     { success: false, error: "reCAPTCHA verification failed" },
+    //     { status: 400 },
+    //   );
+    // }
 
     // Increment rate limit count
     rateLimiter.incrementCount(userAddress);
@@ -200,10 +200,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<RelayResp
       txHash,
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Relay endpoint error", {
-      error: error.message,
-      stack: error.stack,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
       clientIP,
     });
 

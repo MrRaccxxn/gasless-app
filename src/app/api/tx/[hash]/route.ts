@@ -19,10 +19,12 @@ const provider = new ethers.JsonRpcProvider(process.env.CHAIN_RPC_URL!);
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { hash: string } },
+  { params }: { params: Promise<{ hash: string }> },
 ): Promise<NextResponse<TransactionResponse>> {
+  let txHash: string = "unknown";
   try {
-    const txHash = params.hash;
+    const paramsResolved = await params;
+    txHash = paramsResolved.hash;
 
     // Validate transaction hash format
     if (!/^0x[a-fA-F0-9]{64}$/.test(txHash)) {
@@ -89,7 +91,7 @@ export async function GET(
     logger.error("Transaction status endpoint error", {
       error: error.message,
       stack: error.stack,
-      txHash: params.hash,
+      txHash: txHash,
     });
 
     return NextResponse.json(

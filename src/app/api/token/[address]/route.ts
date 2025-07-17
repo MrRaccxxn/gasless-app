@@ -15,10 +15,10 @@ interface TokenInfoResponse {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { address: string } },
+  { params }: { params: Promise<{ address: string }> },
 ): Promise<NextResponse<TokenInfoResponse>> {
   try {
-    const tokenAddress = params.address;
+    const { address: tokenAddress } = await params;
 
     // Validate address format
     if (!/^0x[a-fA-F0-9]{40}$/.test(tokenAddress)) {
@@ -70,11 +70,11 @@ export async function GET(
       },
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error("Token info endpoint error", {
-      error: error.message,
-      stack: error.stack,
-      tokenAddress: params.address,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      // Note: params.address might not be available if params await failed
     });
 
     return NextResponse.json(

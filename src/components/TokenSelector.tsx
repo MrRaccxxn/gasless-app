@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/Input";
+import { Input } from "./ui/input";
 import { formatAmount } from "@/lib/utils";
 
 interface Token {

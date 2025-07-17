@@ -1,16 +1,16 @@
-const RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET!;
+const _RECAPTCHA_SECRET = process.env.RECAPTCHA_SECRET!;
 
-interface RecaptchaResponse {
+interface _RecaptchaResponse {
   success: boolean;
   challenge_ts?: string;
   hostname?: string;
   "error-codes"?: string[];
 }
 
-export class RecaptchaService {
+export class _RecaptchaService {
   async verifyToken(token: string, remoteip?: string): Promise<boolean> {
     // reCAPTCHA is disabled - always return true
-    console.log("reCAPTCHA verification disabled, auto-approving token:", token);
+    console.log("reCAPTCHA verification disabled, auto-approving token:", token, remoteip);
     return true;
 
     // Original implementation commented out
@@ -52,4 +52,4 @@ export class RecaptchaService {
   }
 }
 
-export const recaptchaService = new RecaptchaService();
+//export const recaptchaService = new RecaptchaService();

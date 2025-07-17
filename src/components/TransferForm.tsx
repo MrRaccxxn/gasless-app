@@ -4,18 +4,10 @@ import { useState, useEffect } from "react";
 import { useAccount, useSignTypedData } from "wagmi";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Wallet, Send, ArrowDown } from "lucide-react";
-import { RecaptchaWrapper } from "./RecaptchaWrapper";
 import { TransactionStatus } from "./TransactionStatus";
 import { createEIP712TypedData, getDeadline } from "@/lib/eip712-utils";
-import { formatAmount, parseAmount } from "@/lib/utils";
+import { parseAmount } from "@/lib/utils";
 import { useContractData, useUserData } from "@/hooks/useContractData";
 import { useRelayTransaction } from "@/hooks/useRelayTransaction";
 import { MetaTransfer } from "@/lib/schemas";
@@ -54,7 +46,7 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
 
   const { data: contractData } = useContractData();
   const { data: userData } = useUserData(address);
-  const { relayTransaction } = useRelayTransaction();
+  const { relayTransaction, relayTransactionAsync } = useRelayTransaction();
 
   const selectedCoin = coins.find((c) => c.value === coin) || coins[0];
   const fee = "0.001";
@@ -112,7 +104,7 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
         s: "0x" + "0".repeat(64),
       };
 
-      const result = await relayTransaction({
+      const result = await relayTransactionAsync({
         metaTransfer,
         permitData,
         signature,
