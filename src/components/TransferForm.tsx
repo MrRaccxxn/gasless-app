@@ -4,13 +4,21 @@ import { useState, useEffect } from "react";
 import { useAccount, useSignTypedData } from "wagmi";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Wallet, Send, ArrowDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Wallet, Send, ArrowDown, Check } from "lucide-react";
 import { TransactionStatus } from "./TransactionStatus";
 import { createEIP712TypedData, getDeadline } from "@/lib/eip712-utils";
 import { parseAmount } from "@/lib/utils";
 import { useContractData, useUserData } from "@/hooks/useContractData";
 import { useRelayTransaction } from "@/hooks/useRelayTransaction";
 import { MetaTransfer } from "@/lib/schemas";
+import { alertUtils } from "@/lib/alert-store";
 
 interface TransferFormProps {
   onSuccess?: (txHash: string) => void;
@@ -69,8 +77,17 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
   }, [walletAddress, isExpanded]);
 
   const handleSend = async () => {
-    if (!address || !selectedCoin || !recaptchaToken) return;
+    // if (!address || !selectedCoin || !recaptchaToken) return;
 
+    // Show warning alert for development
+    alertUtils.warning("Currently working on this feature", "Development Notice", {
+      duration: 6000, // Show for 6 seconds
+    });
+
+    return; // Early return to prevent actual transaction processing
+
+    // Original transaction code (commented out for development)
+    /*
     setIsSubmitting(true);
     setError("");
 
@@ -129,6 +146,7 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
     } finally {
       setIsSubmitting(false);
     }
+    */
   };
 
   if (txHash) {
@@ -174,8 +192,8 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
           }`}
         />
         {isValidAddress && (
-          <div className="absolute right-6 top-1/2 transform -translate-y-1/2">
-            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2">
+            <Check className="ml-2 w-4 h-4 text-green-400" />
           </div>
         )}
       </div>
@@ -191,20 +209,20 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
             {/* Network and Amount Row */}
             <div className="flex gap-3">
               <div className="flex-1">
-                <select
-                  value={network}
-                  onChange={(e) => setNetwork(e.target.value)}
-                  className={`${selectBaseClass} h-10 w-full px-4 appearance-none text-sm`}
-                >
-                  <option value="" disabled>
-                    Network
-                  </option>
-                  {networks.map((net) => (
-                    <option key={net.value} value={net.value}>
-                      {net.label}
-                    </option>
-                  ))}
-                </select>
+                <Select value={network} onValueChange={setNetwork}>
+                  <SelectTrigger
+                    className={`${selectBaseClass} h-10 w-full px-4 text-sm rounded-full border-0 shadow-none`}
+                  >
+                    <SelectValue placeholder="Network" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {networks.map((net) => (
+                      <SelectItem key={net.value} value={net.value}>
+                        {net.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex-1 relative">
                 <Input
@@ -251,13 +269,13 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
                 !walletAddress ||
                 !amount ||
                 !network ||
-                !recaptchaToken ||
+                // !recaptchaToken ||
                 isSubmitting
               }
-              className={`w-full py-3 rounded-full font-medium text-base transition-all duration-300 hover:scale-105 disabled:scale-100 disabled:opacity-50 ${
+              className={`w-full py-3 rounded-full font-medium text-base transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-50 hover:cursor-pointer border ${
                 isDark
-                  ? "bg-gray-900 text-white hover:bg-gray-800 disabled:bg-gray-700"
-                  : "bg-gray-100 text-gray-900 hover:bg-white disabled:bg-gray-300"
+                  ? "bg-gray-900 text-white hover:bg-gray-800 border-gray-700 hover:border-gray-600 hover:shadow-gray-900/30 disabled:bg-gray-700 disabled:border-gray-600"
+                  : "bg-gray-100 text-gray-900 hover:bg-gray-50 border-gray-200 hover:border-gray-300 hover:shadow-gray-200/40 disabled:bg-gray-300 disabled:border-gray-300"
               }`}
             >
               {isSubmitting ? (
@@ -300,17 +318,11 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
                     {amount} {selectedCoin.symbol}
                   </span>
                 </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span>Network Fee:</span>
-                  <span className="font-medium">
-                    {fee} {selectedCoin.symbol}
-                  </span>
-                </div>
                 <div className="border-t border-gray-200 dark:border-gray-700 pt-2">
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Total:</span>
                     <span className="font-semibold">
-                      {(parseFloat(amount) + parseFloat(fee)).toFixed(6)}{" "}
+                      {(parseFloat(amount) + parseFloat(fee)).toFixed(2)}{" "}
                       {selectedCoin.symbol}
                     </span>
                   </div>

@@ -6,6 +6,7 @@ import { Moon, Sun, Power } from "lucide-react";
 import { WalletConnection } from "@/components/WalletConnection";
 import { TransferForm } from "@/components/TransferForm";
 import { useContractData } from "@/hooks/useContractData";
+import { AnimatedNetworkText } from "@/components/AnimatedNetworkText";
 
 export default function Home() {
   const { isConnected, chain, address } = useAccount();
@@ -13,8 +14,6 @@ export default function Home() {
   const [mounted, setMounted] = useState(false);
   const [_walletAddress] = useState("");
   const [isDark, setIsDark] = useState(true);
-
-  console.log("isConnected isConnected", address);
 
   useEffect(() => {
     setMounted(true);
@@ -36,7 +35,7 @@ export default function Home() {
       {/* Main Container */}
       <div className="flex items-center justify-center min-h-screen">
         <div
-          className={`w-full p-12 transition-all duration-500 ${
+          className={`min-h-screen w-full p-12 transition-all duration-500 ${
             isDark ? "bg-gray-100 text-gray-900" : "bg-gray-900 text-gray-100"
           }`}
         >
@@ -125,7 +124,7 @@ export default function Home() {
               className="text-lg text-gray-600 dark:text-gray-400 mb-2 animate-fade-in"
               style={{ animationDelay: "0.2s" }}
             >
-              Send ERC-20 tokens on Sepolia without needing ETH for gas.
+              Send ERC-20 tokens on <AnimatedNetworkText /> without needing ETH for gas.
             </p>
             <p
               className="text-lg text-gray-600 dark:text-gray-400 animate-fade-in"
@@ -139,25 +138,15 @@ export default function Home() {
           {mounted && (
             <>
               {!isConnected ? (
-                <div className="max-w-md mx-auto mb-8">
-                  <div
-                    className="animate-scale-in"
-                    style={{ animationDelay: "0.6s" }}
-                  >
-                    <WalletConnection />
-                  </div>
+                <div className="max-w-lg mx-auto mb-8">
+                  <WalletConnection />
                 </div>
               ) : (
-                <div className="max-w-md mx-auto mb-8">
+                <div className="max-w-lg mx-auto mb-8">
                   {isConnected &&
                     !isWrongNetwork &&
                     !contractData?.isPaused && (
-                    <div
-                      className="animate-scale-in"
-                      style={{ animationDelay: "0.6s" }}
-                    >
-                      <TransferForm />
-                    </div>
+                    <TransferForm />
                   )}
                 </div>
               )}
@@ -175,7 +164,7 @@ export default function Home() {
               <div className="w-8 h-8 rounded-full bg-purple-400 border-2 border-white"></div>
             </div>
             <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
-              Trusted by 500+ users on Sepolia
+              Trusted by 500+ users across multiple networks
             </span>
           </div>
 
