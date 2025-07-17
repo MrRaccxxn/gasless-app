@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Gasless Token Transfer",
-  description: "Send ERC-20 tokens on Sepolia without needing ETH for gas fees",
+  description: "Send ERC-20 tokens on different networks without needing ETH for gas fees",
 };
 
 export default function RootLayout({

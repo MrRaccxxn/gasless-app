@@ -14,8 +14,6 @@ export default function Home() {
   const [_walletAddress] = useState("");
   const [isDark, setIsDark] = useState(true);
 
-  console.log("isConnected isConnected", address);
-
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -139,21 +137,16 @@ export default function Home() {
           {mounted && (
             <>
               {!isConnected ? (
-                <div className="max-w-md mx-auto mb-8">
-                  <div
-                    className="animate-scale-in"
-                    style={{ animationDelay: "0.6s" }}
-                  >
-                    <WalletConnection />
-                  </div>
+                <div className="max-w-lg mx-auto mb-8">
+                  <WalletConnection />
                 </div>
               ) : (
-                <div className="max-w-md mx-auto mb-8">
+                <div className="max-w-lg mx-auto mb-8">
                   {isConnected &&
                     !isWrongNetwork &&
                     !contractData?.isPaused && (
                     <div
-                      className="animate-scale-in"
+                      className="p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl border-2 border-gray-200 dark:border-gray-600 shadow-2xl hover:shadow-3xl transition-all duration-300 animate-scale-in"
                       style={{ animationDelay: "0.6s" }}
                     >
                       <TransferForm />
