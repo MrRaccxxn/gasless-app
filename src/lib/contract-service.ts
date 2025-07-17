@@ -11,12 +11,12 @@ const RELAYER_CONTRACT = process.env.RELAYER_CONTRACT!;
 
 // Check if environment variables are properly configured
 const isConfigured = () => {
-  return PRIVATE_KEY && 
-         CHAIN_RPC_URL && 
+  return PRIVATE_KEY &&
+         CHAIN_RPC_URL &&
          RELAYER_CONTRACT &&
-         !PRIVATE_KEY.includes('your_relayer_wallet_private_key_here') &&
-         !CHAIN_RPC_URL.includes('your_project_id') &&
-         !RELAYER_CONTRACT.includes('your_deployed_contract_address_here');
+         !PRIVATE_KEY.includes("your_relayer_wallet_private_key_here") &&
+         !CHAIN_RPC_URL.includes("your_project_id") &&
+         !RELAYER_CONTRACT.includes("your_deployed_contract_address_here");
 };
 
 // Initialize provider and signer only if configured
@@ -123,7 +123,7 @@ export class ContractService {
   // Get ERC20 token balance and allowance
   async getTokenInfo(
     tokenAddress: string,
-    userAddress: string
+    userAddress: string,
   ): Promise<{
     balance: bigint;
     allowance: bigint;
@@ -138,7 +138,7 @@ export class ContractService {
           "function balanceOf(address) view returns (uint256)",
           "function allowance(address,address) view returns (uint256)",
         ],
-        provider
+        provider,
       );
 
       const [balance, allowance] = await Promise.all([
@@ -157,7 +157,7 @@ export class ContractService {
   async executeMetaTransfer(
     metaTransfer: MetaTransfer,
     permitData: PermitData,
-    signature: string
+    signature: string,
   ): Promise<string> {
     if (!contract) {
       throw new Error("Contract service not configured");
@@ -186,7 +186,7 @@ export class ContractService {
       const gasEstimate = await contract.executeMetaTransfer.estimateGas(
         metaTxStruct,
         permitStruct,
-        signature
+        signature,
       );
 
       // Execute the transaction with a buffer
@@ -196,7 +196,7 @@ export class ContractService {
         signature,
         {
           gasLimit: gasEstimate + BigInt(50000), // Add buffer
-        }
+        },
       );
 
       console.log("Transaction submitted:", tx.hash);
@@ -239,7 +239,7 @@ export class ContractService {
         domain,
         types,
         value,
-        signature
+        signature,
       );
       return (
         recoveredAddress.toLowerCase() === metaTransfer.owner.toLowerCase()

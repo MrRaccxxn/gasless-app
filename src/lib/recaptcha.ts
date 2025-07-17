@@ -4,15 +4,15 @@ interface RecaptchaResponse {
   success: boolean;
   challenge_ts?: string;
   hostname?: string;
-  'error-codes'?: string[];
+  "error-codes"?: string[];
 }
 
 export class RecaptchaService {
   async verifyToken(token: string, remoteip?: string): Promise<boolean> {
     // reCAPTCHA is disabled - always return true
-    console.log('reCAPTCHA verification disabled, auto-approving token:', token);
+    console.log("reCAPTCHA verification disabled, auto-approving token:", token);
     return true;
-    
+
     // Original implementation commented out
     // try {
     //   const params = new URLSearchParams({
@@ -38,7 +38,7 @@ export class RecaptchaService {
     //   }
 
     //   const data: RecaptchaResponse = await response.json();
-    //   
+    //
     //   if (!data.success) {
     //     console.error('reCAPTCHA verification failed:', data['error-codes']);
     //     return false;

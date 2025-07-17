@@ -1,28 +1,28 @@
-'use client'
+"use client";
 
-import { useMutation } from '@tanstack/react-query'
-import { RelayRequest, RelayResponse } from '@/lib/schemas'
+import { useMutation } from "@tanstack/react-query";
+import { RelayRequest, RelayResponse } from "@/lib/schemas";
 
 export function useRelayTransaction() {
   const mutation = useMutation<RelayResponse, Error, RelayRequest>({
     mutationFn: async (request: RelayRequest) => {
-      const response = await fetch('/api/relay', {
-        method: 'POST',
+      const response = await fetch("/api/relay", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(request),
-      })
-      
-      const data = await response.json()
-      
+      });
+
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to relay transaction')
+        throw new Error(data.error || "Failed to relay transaction");
       }
-      
-      return data
+
+      return data;
     },
-  })
+  });
 
   return {
     relayTransaction: mutation.mutate,
@@ -31,5 +31,5 @@ export function useRelayTransaction() {
     error: mutation.error,
     data: mutation.data,
     reset: mutation.reset,
-  }
+  };
 }

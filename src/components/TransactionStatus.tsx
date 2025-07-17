@@ -1,7 +1,7 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { Button } from './ui/button'
+import { useState, useEffect } from "react";
+import { Button } from "./ui/button";
 
 interface TransactionStatusProps {
   txHash: string
@@ -10,62 +10,62 @@ interface TransactionStatusProps {
 
 interface TransactionData {
   hash: string
-  status: 'pending' | 'confirmed' | 'failed'
+  status: "pending" | "confirmed" | "failed"
   blockNumber?: number
   gasUsed?: string
   confirmations?: number
 }
 
 export function TransactionStatus({ txHash, onReset }: TransactionStatusProps) {
-  const [txData, setTxData] = useState<TransactionData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string>('')
+  const [txData, setTxData] = useState<TransactionData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     const fetchTransactionStatus = async () => {
       try {
-        const response = await fetch(`/api/tx/${txHash}`)
-        const data = await response.json()
-        
+        const response = await fetch(`/api/tx/${txHash}`);
+        const data = await response.json();
+
         if (data.success && data.data) {
-          setTxData(data.data)
+          setTxData(data.data);
         } else {
-          setError(data.error || 'Failed to fetch transaction status')
+          setError(data.error || "Failed to fetch transaction status");
         }
       } catch (err) {
-        setError('Failed to fetch transaction status')
+        setError("Failed to fetch transaction status");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchTransactionStatus()
-    
+    fetchTransactionStatus();
+
     // Poll for updates if transaction is pending
     const interval = setInterval(() => {
-      if (txData?.status === 'pending') {
-        fetchTransactionStatus()
+      if (txData?.status === "pending") {
+        fetchTransactionStatus();
       }
-    }, 5000)
+    }, 5000);
 
-    return () => clearInterval(interval)
-  }, [txHash, txData?.status])
+    return () => clearInterval(interval);
+  }, [txHash, txData?.status]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'text-green-600 bg-green-50'
-      case 'failed': return 'text-red-600 bg-red-50'
-      default: return 'text-yellow-600 bg-yellow-50'
+      case "confirmed": return "text-green-600 bg-green-50";
+      case "failed": return "text-red-600 bg-red-50";
+      default: return "text-yellow-600 bg-yellow-50";
     }
-  }
+  };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case 'confirmed': return 'Confirmed'
-      case 'failed': return 'Failed'
-      default: return 'Pending'
+      case "confirmed": return "Confirmed";
+      case "failed": return "Failed";
+      default: return "Pending";
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -73,7 +73,7 @@ export function TransactionStatus({ txHash, onReset }: TransactionStatusProps) {
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
         <p className="mt-4 text-gray-600">Loading transaction status...</p>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -84,7 +84,7 @@ export function TransactionStatus({ txHash, onReset }: TransactionStatusProps) {
           Try Again
         </Button>
       </div>
-    )
+    );
   }
 
   if (!txData) {
@@ -95,29 +95,29 @@ export function TransactionStatus({ txHash, onReset }: TransactionStatusProps) {
           Go Back
         </Button>
       </div>
-    )
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="text-center">
         <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(txData.status)}`}>
-          {txData.status === 'pending' && (
+          {txData.status === "pending" && (
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
           )}
           {getStatusText(txData.status)}
         </div>
-        
+
         <h3 className="text-lg font-semibold mt-4 mb-2">
-          {txData.status === 'confirmed' ? 'Transaction Confirmed!' : 
-           txData.status === 'failed' ? 'Transaction Failed' : 
-           'Transaction Submitted'}
+          {txData.status === "confirmed" ? "Transaction Confirmed!" :
+            txData.status === "failed" ? "Transaction Failed" :
+              "Transaction Submitted"}
         </h3>
-        
+
         <p className="text-gray-600 text-sm">
-          {txData.status === 'confirmed' ? 'Your gasless transfer has been completed successfully.' :
-           txData.status === 'failed' ? 'Your transaction failed. Please try again.' :
-           'Your transaction is being processed on the blockchain.'}
+          {txData.status === "confirmed" ? "Your gasless transfer has been completed successfully." :
+            txData.status === "failed" ? "Your transaction failed. Please try again." :
+              "Your transaction is being processed on the blockchain."}
         </p>
       </div>
 
@@ -169,14 +169,14 @@ export function TransactionStatus({ txHash, onReset }: TransactionStatusProps) {
         >
           Send Another
         </Button>
-        
+
         <Button
-          onClick={() => window.open(`https://sepolia.etherscan.io/tx/${txData.hash}`, '_blank')}
+          onClick={() => window.open(`https://sepolia.etherscan.io/tx/${txData.hash}`, "_blank")}
           className="flex-1"
         >
           View on Etherscan
         </Button>
       </div>
     </div>
-  )
+  );
 }

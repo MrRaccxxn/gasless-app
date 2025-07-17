@@ -1,12 +1,12 @@
-import { EIP712_DOMAIN, EIP712_TYPES } from './constants';
-import { MetaTransfer } from './schemas';
+import { EIP712_DOMAIN, EIP712_TYPES } from "./constants";
+import { MetaTransfer } from "./schemas";
 
 // Helper function to create EIP-712 typed data for frontend
 export function createEIP712TypedData(metaTransfer: MetaTransfer) {
   return {
     domain: EIP712_DOMAIN,
     types: EIP712_TYPES,
-    primaryType: 'MetaTransfer',
+    primaryType: "MetaTransfer",
     message: {
       owner: metaTransfer.owner,
       token: metaTransfer.token,
@@ -35,7 +35,7 @@ export function createPermitTypedData(
   deadline: string,
   chainId: number,
   tokenName: string,
-  tokenVersion: string = '1'
+  tokenVersion: string = "1",
 ) {
   return {
     domain: {
@@ -46,14 +46,14 @@ export function createPermitTypedData(
     },
     types: {
       Permit: [
-        { name: 'owner', type: 'address' },
-        { name: 'spender', type: 'address' },
-        { name: 'value', type: 'uint256' },
-        { name: 'nonce', type: 'uint256' },
-        { name: 'deadline', type: 'uint256' },
+        { name: "owner", type: "address" },
+        { name: "spender", type: "address" },
+        { name: "value", type: "uint256" },
+        { name: "nonce", type: "uint256" },
+        { name: "deadline", type: "uint256" },
       ],
     },
-    primaryType: 'Permit',
+    primaryType: "Permit",
     message: {
       owner,
       spender,

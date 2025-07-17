@@ -157,13 +157,13 @@ export default function Home() {
                   {isConnected &&
                     !isWrongNetwork &&
                     !contractData?.isPaused && (
-                      <div
-                        className="animate-scale-in"
-                        style={{ animationDelay: "0.6s" }}
-                      >
-                        <TransferForm />
-                      </div>
-                    )}
+                    <div
+                      className="animate-scale-in"
+                      style={{ animationDelay: "0.6s" }}
+                    >
+                      <TransferForm />
+                    </div>
+                  )}
                 </div>
               )}
             </>

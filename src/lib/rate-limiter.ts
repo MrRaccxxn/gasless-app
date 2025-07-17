@@ -22,8 +22,8 @@ export class RateLimiter {
 
   constructor(options?: Partial<RateLimiterOptions>) {
     this.options = {
-      maxRequestsPerMinute: parseInt(process.env.MAX_REQUESTS_PER_MINUTE || '10'),
-      maxGasPerHour: BigInt(process.env.MAX_GAS_PER_HOUR || '1000000'),
+      maxRequestsPerMinute: parseInt(process.env.MAX_REQUESTS_PER_MINUTE || "10"),
+      maxGasPerHour: BigInt(process.env.MAX_GAS_PER_HOUR || "1000000"),
       windowMs: 60 * 1000, // 1 minute
       gasWindowMs: 60 * 60 * 1000, // 1 hour
       ...options,
@@ -36,7 +36,7 @@ export class RateLimiter {
   // Check if request is allowed
   checkLimit(identifier: string): { allowed: boolean; retryAfter?: number } {
     const now = Date.now();
-    
+
     // Check if wallet is banned
     const banUntil = this.bannedWallets.get(identifier);
     if (banUntil && now < banUntil) {
@@ -49,7 +49,7 @@ export class RateLimiter {
     }
 
     let entry = this.storage.get(identifier);
-    
+
     if (!entry) {
       entry = {
         count: 0,
@@ -139,7 +139,7 @@ export class RateLimiter {
   // Cleanup expired entries
   private cleanup(): void {
     const now = Date.now();
-    
+
     // Clean up rate limit entries
     for (const [key, entry] of this.storage.entries()) {
       if (now >= entry.resetTime && now >= entry.lastReset + this.options.gasWindowMs) {

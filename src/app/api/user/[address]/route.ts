@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { contractService } from '@/lib/contract-service';
-import { rateLimiter } from '@/lib/rate-limiter';
-import { logger } from '@/lib/logger';
+import { NextRequest, NextResponse } from "next/server";
+import { contractService } from "@/lib/contract-service";
+import { rateLimiter } from "@/lib/rate-limiter";
+import { logger } from "@/lib/logger";
 
 interface UserInfoResponse {
   success: boolean;
@@ -20,7 +20,7 @@ interface UserInfoResponse {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { address: string } }
+  { params }: { params: { address: string } },
 ): Promise<NextResponse<UserInfoResponse>> {
   try {
     const address = params.address;
@@ -28,8 +28,8 @@ export async function GET(
     // Validate address format
     if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
       return NextResponse.json(
-        { success: false, error: 'Invalid address format' },
-        { status: 400 }
+        { success: false, error: "Invalid address format" },
+        { status: 400 },
       );
     }
 
@@ -53,22 +53,22 @@ export async function GET(
     });
 
   } catch (error: any) {
-    logger.error('User info endpoint error', {
+    logger.error("User info endpoint error", {
       error: error.message,
       stack: error.stack,
       address: params.address,
     });
 
     return NextResponse.json(
-      { success: false, error: 'Failed to get user information' },
-      { status: 500 }
+      { success: false, error: "Failed to get user information" },
+      { status: 500 },
     );
   }
 }
 
 export async function POST(): Promise<NextResponse> {
   return NextResponse.json(
-    { error: 'Method not allowed' },
-    { status: 405 }
+    { error: "Method not allowed" },
+    { status: 405 },
   );
 }

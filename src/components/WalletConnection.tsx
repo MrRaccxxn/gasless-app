@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import { useAccount, useConnect, useDisconnect } from 'wagmi'
-import { Button } from './ui/button'
-import { useEffect, useState } from 'react'
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { Button } from "./ui/button";
+import { useEffect, useState } from "react";
 
 export function WalletConnection() {
-  const { address, isConnected, chain } = useAccount()
-  const { connect, connectors, isPending } = useConnect()
-  const { disconnect } = useDisconnect()
-  const [mounted, setMounted] = useState(false)
+  const { address, isConnected, chain } = useAccount();
+  const { connect, connectors, isPending } = useConnect();
+  const { disconnect } = useDisconnect();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
-  const isWrongNetwork = chain?.id !== 11155111 // Sepolia
+  const isWrongNetwork = chain?.id !== 11155111; // Sepolia
 
   if (!mounted) {
     return (
@@ -31,7 +31,7 @@ export function WalletConnection() {
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   if (isConnected && address) {
@@ -52,7 +52,7 @@ export function WalletConnection() {
             Disconnect
           </Button>
         </div>
-        
+
         {isWrongNetwork && (
           <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-800 text-sm font-medium">
@@ -64,7 +64,7 @@ export function WalletConnection() {
           </div>
         )}
       </div>
-    )
+    );
   }
 
   return (
@@ -75,7 +75,7 @@ export function WalletConnection() {
           Connect your wallet to send tokens without gas fees
         </p>
       </div>
-      
+
       <div className="flex flex-col gap-2">
         {connectors.map((connector) => (
           <Button
@@ -85,10 +85,10 @@ export function WalletConnection() {
             variant="outline"
             className="justify-start"
           >
-            {isPending ? 'Connecting...' : `Connect ${connector.name}`}
+            {isPending ? "Connecting..." : `Connect ${connector.name}`}
           </Button>
         ))}
       </div>
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useEffect } from 'react'
+import { useEffect } from "react";
 // import ReCAPTCHA from 'react-google-recaptcha' // Disabled
 
 interface RecaptchaWrapperProps {
@@ -11,8 +11,8 @@ interface RecaptchaWrapperProps {
 export function RecaptchaWrapper({ onVerify, onError }: RecaptchaWrapperProps) {
   // reCAPTCHA is disabled - automatically call onVerify with a dummy token
   useEffect(() => {
-    onVerify('disabled-token')
-  }, [onVerify])
+    onVerify("disabled-token");
+  }, [onVerify]);
 
   return (
     <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -20,5 +20,5 @@ export function RecaptchaWrapper({ onVerify, onError }: RecaptchaWrapperProps) {
         reCAPTCHA is disabled for development
       </p>
     </div>
-  )
+  );
 }
