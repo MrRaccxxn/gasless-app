@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAccount, useSignTypedData } from "wagmi";
+import { useAccount, useSignTypedData, useReadContract, useChainId } from "wagmi";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +13,13 @@ import {
 } from "@/components/ui/select";
 import { Wallet, Send, ArrowDown, Check } from "lucide-react";
 import { TransactionStatus } from "./TransactionStatus";
-import { createEIP712TypedData, getDeadline } from "@/lib/eip712-utils";
+import { createEIP712TypedData, createPermitTypedData, getDeadline } from "@/lib/eip712-utils";
 import { parseAmount } from "@/lib/utils";
 import { useContractData, useUserData } from "@/hooks/useContractData";
 import { useRelayTransaction } from "@/hooks/useRelayTransaction";
 import { MetaTransfer } from "@/lib/schemas";
 import { alertUtils } from "@/lib/alert-store";
+import { coins } from "@/lib/coins";
 
 interface TransferFormProps {
   onSuccess?: (txHash: string) => void;
@@ -30,16 +31,6 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
 
   // Available networks and coins (this will be fetched from contract later)
   const networks = [{ value: "sepolia", label: "Sepolia" }];
-
-  const coins = [
-    {
-      value: "0x1234567890123456789012345678901234567890",
-      label: "USDT",
-      symbol: "USDT",
-      name: "Tether USD",
-      decimals: 6,
-    },
-  ];
 
   const [walletAddress, setWalletAddress] = useState("");
   const [amount, setAmount] = useState("");
@@ -55,8 +46,29 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
   const { data: _contractData } = useContractData();
   const { data: userData } = useUserData(address);
   const { relayTransactionAsync } = useRelayTransaction();
+  const chainId = useChainId();
 
   const selectedCoin = coins.find((c) => c.value === coin) || coins[0];
+
+  // Read permit nonce from USDC contract
+  const { data: permitNonce } = useReadContract({
+    address: selectedCoin.value as `0x${string}`,
+    abi: [
+      {
+        name: 'nonces',
+        type: 'function',
+        stateMutability: 'view',
+        inputs: [{ name: 'owner', type: 'address' }],
+        outputs: [{ name: '', type: 'uint256' }],
+      },
+    ],
+    functionName: 'nonces',
+    args: address ? [address] : undefined,
+    query: {
+      enabled: !!address,
+    },
+  });
+
   const fee = "0.001";
 
   // Simple ETH address validation (starts with 0x and is 42 characters long)
@@ -77,17 +89,9 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
   }, [walletAddress, isExpanded]);
 
   const handleSend = async () => {
-    // if (!address || !selectedCoin || !recaptchaToken) return;
+    if (!address || !selectedCoin) return;
 
-    // Show warning alert for development
-    alertUtils.warning("Currently working on this feature", "Development Notice", {
-      duration: 6000, // Show for 6 seconds
-    });
-
-    return; // Early return to prevent actual transaction processing
-
-    // Original transaction code (commented out for development)
-    /*
+    // Submit gasless transaction with EIP-2612 permit signatures
     setIsSubmitting(true);
     setError("");
 
@@ -101,7 +105,6 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
         deadline: getDeadline(10),
         nonce: userData?.nonce || "0",
       };
-
       const typedData = createEIP712TypedData(metaTransfer);
 
       const signature = await signTypedDataAsync({
@@ -111,21 +114,65 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
         message: typedData.message,
       });
 
+      console.log(
+        "metaTransfer value",
+        BigInt(metaTransfer.amount) + BigInt(metaTransfer.fee),
+      );
+
+      // Generate real EIP-2612 permit signature
+      console.log("Generating EIP-2612 permit signature for gasless transaction");
+
+      // Get current permit nonce for this user
+      const currentPermitNonce = permitNonce?.toString() || "0";
+      const permitValue = (BigInt(metaTransfer.amount) + BigInt(metaTransfer.fee)).toString();
+      const permitDeadline = getDeadline(60); // 1 hour deadline for permit
+      
+      // Create permit typed data
+      const permitTypedData = createPermitTypedData(
+        selectedCoin.value, // token address
+        address, // owner
+        process.env.NEXT_PUBLIC_RELAYER_CONTRACT || "", // spender (relayer contract)
+        permitValue, // permit amount (transfer + fee)
+        currentPermitNonce, // permit nonce
+        permitDeadline, // permit deadline
+        chainId, // chain ID
+        selectedCoin.name, // token name ("USDC")
+        "2" // token version
+      );
+
+      // Sign the permit
+      const permitSignature = await signTypedDataAsync({
+        domain: permitTypedData.domain,
+        types: permitTypedData.types,
+        primaryType: permitTypedData.primaryType,
+        message: permitTypedData.message,
+      });
+
+      // Split permit signature
+      const permitSig = permitSignature.slice(2); // Remove 0x
+      const r = "0x" + permitSig.slice(0, 64);
+      const s = "0x" + permitSig.slice(64, 128);
+      const v = parseInt(permitSig.slice(128, 130), 16);
+
       const permitData = {
-        value: (
-          BigInt(metaTransfer.amount) + BigInt(metaTransfer.fee)
-        ).toString(),
-        deadline: metaTransfer.deadline,
-        v: 27,
-        r: `0x${"0".repeat(64)}`,
-        s: `0x${"0".repeat(64)}`,
+        value: permitValue,
+        deadline: permitDeadline,
+        v,
+        r,
+        s,
       };
+
+      console.log("Permit data:", permitData);
+      console.log("MetaTransfer being sent:", metaTransfer);
+      console.log("Permit nonce used:", currentPermitNonce);
+      console.log("Permit value (amount + fee):", permitValue);
+      console.log("Transaction uses gasless permit signatures - no pre-approval needed!");
 
       const result = await relayTransactionAsync({
         metaTransfer,
         permitData,
         signature,
-        recaptchaToken,
+        // recaptchaToken,
       });
 
       if (result.success && result.txHash) {
@@ -138,7 +185,17 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
         setIsValidAddress(false);
         setIsExpanded(false);
       } else {
-        setError(result.error || "Transaction failed");
+        const errorMessage = result.error || "Transaction failed";
+        // Add helpful guidance for common errors
+        if (errorMessage.includes("PermitFailed")) {
+          setError("Permit signature failed. This may be due to an invalid signature or expired deadline. Please try again.");
+        } else if (errorMessage.includes("Insufficient")) {
+          setError("Insufficient token balance. Please ensure you have enough USDC tokens to cover the transfer amount and fee.");
+        } else if (errorMessage.includes("deadline")) {
+          setError("Transaction deadline expired. Please try again with a new transaction.");
+        } else {
+          setError(errorMessage);
+        }
       }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
@@ -146,7 +203,6 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
     } finally {
       setIsSubmitting(false);
     }
-    */
   };
 
   if (txHash) {

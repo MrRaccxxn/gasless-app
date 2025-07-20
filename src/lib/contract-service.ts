@@ -2,7 +2,6 @@ import { ethers } from "ethers";
 import { MetaTransfer, PermitData } from "./schemas";
 import { EIP712_DOMAIN, EIP712_TYPES } from "./constants";
 import gaslessABI from "../../abi/gasless.json";
-import "dotenv/config";
 
 // Environment variables (backend-only)
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
@@ -204,17 +203,31 @@ export class ContractService {
     } catch (error: unknown) {
       console.error("Error executing meta transfer:", error);
 
-      // Parse contract errors
+      // Parse contract errors with more detail
       if (error && typeof error === "object" && "code" in error && error.code === "CALL_EXCEPTION") {
         if ("data" in error && error.data) {
           try {
             const decodedError = contract.interface.parseError(error.data as string);
-            throw new Error(`Contract error: ${decodedError?.name || "Unknown"}`);
-          } catch {
-            throw new Error("Contract execution failed");
+            console.error("Decoded contract error:", decodedError);
+            throw new Error(`Contract error: ${decodedError?.name || "Unknown"} - ${decodedError?.args?.join(", ") || "No args"}`);
+          } catch (parseError) {
+            console.error("Failed to parse contract error:", parseError);
+            console.error("Raw error data:", error.data);
+            throw new Error(`Contract execution failed - Raw data: ${error.data}`);
           }
         }
+        
+        // Log more error details
+        if ("reason" in error) {
+          console.error("Contract error reason:", error.reason);
+        }
+        if ("transaction" in error) {
+          console.error("Failed transaction:", error.transaction);
+        }
       }
+
+      // Log the full error object for debugging
+      console.error("Full error object:", JSON.stringify(error, null, 2));
 
       const errorMessage = error instanceof Error ? error.message : "Unknown error";
       throw new Error(`Failed to execute meta transfer: ${errorMessage}`);
@@ -226,12 +239,14 @@ export class ContractService {
     try {
       const domain = EIP712_DOMAIN;
       const types = EIP712_TYPES;
+
+      // Use raw values to match what the smart contract expects
       const value = {
         owner: metaTransfer.owner,
         token: metaTransfer.token,
         recipient: metaTransfer.recipient,
-        amount: metaTransfer.amount,
-        fee: metaTransfer.fee,
+        amount: metaTransfer.amount, // Raw values (e.g., "1000000" for 1 USDC)
+        fee: metaTransfer.fee, // Raw values (e.g., "1000" for 0.001 USDC)
         deadline: metaTransfer.deadline,
         nonce: metaTransfer.nonce,
       };

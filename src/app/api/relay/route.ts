@@ -30,6 +30,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<RelayResp
 
     // Validate input schema
     const validationResult = RelayRequestSchema.safeParse(body);
+
     if (!validationResult.success) {
       // logger.validationError("/api/relay", validationResult.error.errors, clientIP);
       return NextResponse.json(
@@ -177,12 +178,21 @@ export async function POST(request: NextRequest): Promise<NextResponse<RelayResp
       );
     }
 
-    if (allowance < totalNeeded) {
-      logger.relayFailure(userAddress, metaTransfer.token, metaTransfer.amount, "Insufficient allowance");
+    // Check allowance only if no permit is provided (permit value = 0 means no permit)
+    const hasPermit = BigInt(permitData.value) > 0n;
+    if (!hasPermit && allowance < totalNeeded) {
+      logger.relayFailure(userAddress, metaTransfer.token, metaTransfer.amount, "Insufficient allowance and no permit");
       return NextResponse.json(
-        { success: false, error: "Insufficient token allowance" },
+        { success: false, error: "Insufficient token allowance and no permit provided" },
         { status: 400 },
       );
+    }
+
+    // If permit is provided, trust that it will work and let the contract handle it
+    if (hasPermit) {
+      console.log(`Using permit for ${totalNeeded} tokens (${permitData.value} permit value)`);
+    } else {
+      console.log(`Using existing allowance: ${allowance} tokens`);
     }
 
     // Execute the meta transfer
@@ -201,8 +211,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<RelayResp
     });
 
   } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error("Relay endpoint error", {
-      error: error instanceof Error ? error.message : String(error),
+      error: errorMessage,
       stack: error instanceof Error ? error.stack : undefined,
       clientIP,
     });

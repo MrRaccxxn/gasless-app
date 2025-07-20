@@ -11,8 +11,8 @@ export function createEIP712TypedData(metaTransfer: MetaTransfer) {
       owner: metaTransfer.owner,
       token: metaTransfer.token,
       recipient: metaTransfer.recipient,
-      amount: metaTransfer.amount,
-      fee: metaTransfer.fee,
+      amount: metaTransfer.amount, // Use raw values for contract compatibility
+      fee: metaTransfer.fee, // Use raw values for contract compatibility
       deadline: metaTransfer.deadline,
       nonce: metaTransfer.nonce,
     },

@@ -1,5 +1,6 @@
 "use client";
 
+import { WalletAddress } from "@/lib/schemas";
 import { useQuery } from "@tanstack/react-query";
 
 interface ContractData {
@@ -39,7 +40,7 @@ export function useContractData(_userAddress?: string) {
   });
 }
 
-export function useUserData(userAddress?: string) {
+export function useUserData(userAddress?: WalletAddress) {
   return useQuery<UserData>({
     queryKey: ["userData", userAddress],
     queryFn: async () => {

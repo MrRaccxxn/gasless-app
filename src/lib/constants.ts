@@ -8,10 +8,10 @@ const getChainId = () => {
 };
 
 const getRelayerContract = (): `0x${string}` => {
-  const contract = process.env.NEXT_PUBLIC_RELAYER_CONTRACT;
-  // If not set or still placeholder, use a default address for development
+  const contract = process.env.NEXT_PUBLIC_RELAYER_CONTRACT || process.env.RELAYER_CONTRACT;
+  // If not set or still placeholder, use the actual deployed contract address
   if (!contract || contract.includes("your_deployed_contract_address_here")) {
-    console.warn("NEXT_PUBLIC_RELAYER_CONTRACT not set, using development default");
+    console.warn("Relayer contract not set in env, using deployed contract address");
     return "0x0000000000000000000000000000000000000000";
   }
   return contract as `0x${string}`;

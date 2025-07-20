@@ -4,7 +4,9 @@ import { z } from "zod";
 export const MetaTransferSchema = z.object({
   owner: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid owner address"),
   token: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid token address"),
-  recipient: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid recipient address"),
+  recipient: z
+    .string()
+    .regex(/^0x[a-fA-F0-9]{40}$/, "Invalid recipient address"),
   amount: z.string().regex(/^\d+$/, "Invalid amount"),
   fee: z.string().regex(/^\d+$/, "Invalid fee"),
   deadline: z.string().regex(/^\d+$/, "Invalid deadline"),
@@ -25,7 +27,7 @@ export const RelayRequestSchema = z.object({
   metaTransfer: MetaTransferSchema,
   permitData: PermitDataSchema,
   signature: z.string().regex(/^0x[a-fA-F0-9]+$/, "Invalid signature"),
-  recaptchaToken: z.string().min(1, "reCAPTCHA token required"),
+  // recaptchaToken: z.string().min(1, "reCAPTCHA token required"),
 });
 
 // Response schemas
@@ -40,3 +42,5 @@ export type MetaTransfer = z.infer<typeof MetaTransferSchema>;
 export type PermitData = z.infer<typeof PermitDataSchema>;
 export type RelayRequest = z.infer<typeof RelayRequestSchema>;
 export type RelayResponse = z.infer<typeof RelayResponseSchema>;
+
+export type WalletAddress = `0x${string}`;
