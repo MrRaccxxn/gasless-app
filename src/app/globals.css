@@ -176,3 +176,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .dot-pattern-light {
+    background-image: radial-gradient(rgba(120, 119, 198, 0.2) 1.1px, transparent 1.1px);
+    background-size: 22px 22px;
+  }
+  
+  .dot-pattern-dark {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1.1px, transparent 1.1px);
+    background-size: 22px 22px;
+  }
+}

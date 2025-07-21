@@ -231,7 +231,7 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
 
   const addressInputClass = `px-6 py-6 rounded-full border-0 text-base transition-all duration-300 ${
     isDark
-      ? "bg-gray-800 text-white placeholder:text-gray-400"
+      ? "bg-gray-800 text-white placeholder:text-gray-500"
       : "bg-gray-100 text-gray-900 placeholder:text-gray-500"
   }`;
 
