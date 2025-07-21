@@ -69,8 +69,8 @@ const PERMIT_TYPES = {
 class GaslessFlowTester {
   constructor(senderPrivateKey, recipientAddress) {
     // Validate environment
-    this.rpcUrl = "https://eth-sepolia.g.alchemy.com/v2/lPblIf9dJZwsdzZL3c5snFlzAnoP_oLS";
-    this.relayerContract = "0xd46804521b9fbc0d9dd6531b742b07fa42453288";
+    this.rpcUrl = process.env.CHAIN_RPC_URL;
+    this.relayerContract = process.env.RELAYER_CONTRACT;
     
     if (!this.rpcUrl || !this.relayerContract) {
       throw new Error("Missing environment variables: CHAIN_RPC_URL and RELAYER_CONTRACT are required");
