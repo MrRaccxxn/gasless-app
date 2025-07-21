@@ -1,20 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
-import { Moon, Sun, Power } from "lucide-react";
+import { useAccount, useSwitchChain } from "wagmi";
+import { Moon, Sun, Power, AlertTriangle } from "lucide-react";
 import { WalletConnection } from "@/components/WalletConnection";
 import { TransferForm } from "@/components/TransferForm";
 import { WalletInfo } from "@/components/WalletInfo";
 import { useContractData } from "@/hooks/useContractData";
 import { AnimatedNetworkText } from "@/components/AnimatedNetworkText";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const { isConnected, chain } = useAccount();
+  const { switchChain } = useSwitchChain();
   const { data: contractData, error } = useContractData();
   const [mounted, setMounted] = useState(false);
   const [_walletAddress] = useState("");
-  const [isDark, setIsDark] = useState(true);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -26,8 +28,6 @@ export default function Home() {
   };
 
   const isWrongNetwork = chain?.id !== 11155111; // Sepolia
-
-  console.log(isDark);
 
   return (
     <div className="flex items-center justify-center min-h-screen">
@@ -142,6 +142,34 @@ export default function Home() {
             Just sign the transaction and our relayer handles the rest!
           </p>
         </div>
+
+        {/* Network Warning */}
+        {mounted && isConnected && isWrongNetwork && (
+          <div className="max-w-lg mx-auto mb-8 animate-fade-in">
+            <div className="p-6 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-2 border-orange-300 dark:border-orange-600 rounded-xl shadow-lg">
+              <div className="flex items-start gap-4">
+                <AlertTriangle className="w-6 h-6 text-orange-600 dark:text-orange-400 mt-1 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-orange-800 dark:text-orange-200 mb-2">
+                    Wrong Network Detected
+                  </h3>
+                  <p className="text-orange-700 dark:text-orange-300 text-sm mb-4">
+                    You&apos;re currently connected to <strong>{chain?.name || "Unknown Network"}</strong>, but this project runs on the <strong>Sepolia testnet</strong>.
+                    This is a test environment for development and testing purposes.
+                  </p>
+                  <div className="flex">
+                    <Button
+                      onClick={() => switchChain({ chainId: 11155111 })}
+                      className="bg-orange-600 hover:bg-orange-700 text-white font-medium"
+                    >
+                      Switch to Sepolia
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Wallet Connection or Address Input */}
         {mounted && (
