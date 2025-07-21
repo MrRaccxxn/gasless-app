@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Wallet, Send, ArrowDown, Check } from "lucide-react";
 import { TransactionStatus } from "./TransactionStatus";
+import { FeeBreakdown } from "./FeeBreakdown";
 import { createEIP712TypedData, createPermitTypedData, getDeadline } from "@/lib/eip712-utils";
 import { parseAmount } from "@/lib/utils";
 import { useContractData, useUserData } from "@/hooks/useContractData";
@@ -347,43 +348,15 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
               )}
             </Button>
 
-            {/* Transaction details preview */}
+            {/* Fee Breakdown */}
             {amount && network && (
-              <div
-                className={`mt-4 p-4 rounded-2xl text-sm transition-all duration-300 ${
-                  isDark
-                    ? "bg-gray-800 text-gray-300"
-                    : "bg-gray-100 text-gray-600"
-                }`}
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <span>Network:</span>
-                  <span className="font-medium capitalize">
-                    {networks.find((n) => n.value === network)?.label}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span>Asset:</span>
-                  <span className="font-medium uppercase">
-                    {selectedCoin.symbol}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center mb-2">
-                  <span>Amount:</span>
-                  <span className="font-medium">
-                    {amount} {selectedCoin.symbol}
-                  </span>
-                </div>
-                <div className="border-t border-gray-200 dark:border-gray-700 pt-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold">Total:</span>
-                    <span className="font-semibold">
-                      {(parseFloat(amount) + parseFloat(fee)).toFixed(2)}{" "}
-                      {selectedCoin.symbol}
-                    </span>
-                  </div>
-                </div>
-              </div>
+              <FeeBreakdown
+                tokenAddress={selectedCoin.value}
+                transferAmount={parseAmount(amount, selectedCoin.decimals).toString()}
+                tokenDecimals={selectedCoin.decimals}
+                tokenSymbol={selectedCoin.symbol}
+                isHidden={!isExpanded}
+              />
             )}
           </div>
         )}
