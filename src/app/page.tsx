@@ -5,6 +5,7 @@ import { useAccount } from "wagmi";
 import { Moon, Sun, Power } from "lucide-react";
 import { WalletConnection } from "@/components/WalletConnection";
 import { TransferForm } from "@/components/TransferForm";
+import { WalletInfo } from "@/components/WalletInfo";
 import { useContractData } from "@/hooks/useContractData";
 import { AnimatedNetworkText } from "@/components/AnimatedNetworkText";
 
@@ -71,14 +72,26 @@ export default function Home() {
           </div>
 
           {/* Brand */}
-          <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-8">
-              <div className="w-2 h-2 bg-current rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium tracking-wide">
-                Gasless Protocol
-              </span>
+          {!isConnected && (
+            <div className="text-center mb-8">
+              <div className="flex items-center justify-center gap-2 mb-8">
+                <div className="w-2 h-2 bg-current rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium tracking-wide">
+                  Gasless App
+                </span>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Wallet Info */}
+          {mounted && isConnected && (
+            <div
+              className="m-6 text-center animate-fade-in"
+              style={{ animationDelay: "1.6s" }}
+            >
+              <WalletInfo isDark={isDark} />
+            </div>
+          )}
 
           {error && (
             <div className="mb-8 flex justify-center">
@@ -124,7 +137,8 @@ export default function Home() {
               className="text-lg text-gray-600 dark:text-gray-400 mb-2 animate-fade-in"
               style={{ animationDelay: "0.2s" }}
             >
-              Send ERC-20 tokens on <AnimatedNetworkText /> without needing ETH for gas.
+              Send ERC-20 tokens on <AnimatedNetworkText /> without needing ETH
+              for gas.
             </p>
             <p
               className="text-lg text-gray-600 dark:text-gray-400 animate-fade-in"
@@ -145,9 +159,7 @@ export default function Home() {
                 <div className="max-w-lg mx-auto mb-8">
                   {isConnected &&
                     !isWrongNetwork &&
-                    !contractData?.isPaused && (
-                    <TransferForm />
-                  )}
+                    !contractData?.isPaused && <TransferForm />}
                 </div>
               )}
             </>
@@ -167,35 +179,6 @@ export default function Home() {
               Trusted by 500+ users across multiple networks
             </span>
           </div>
-
-          {/* Contract Info */}
-          {contractData && (
-            <div
-              className="mt-12 text-center animate-fade-in"
-              style={{ animationDelay: "1.6s" }}
-            >
-              <div
-                className={`inline-block px-6 py-3 rounded-full text-sm ${
-                  isDark
-                    ? "bg-gray-900 text-gray-100"
-                    : "bg-gray-800 text-gray-100"
-                }`}
-              >
-                <span className="font-mono">
-                  {contractData.contractAddress.slice(0, 8)}...
-                  {contractData.contractAddress.slice(-6)}
-                </span>
-                <span className="ml-2">•</span>
-                <span
-                  className={`ml-2 ${
-                    contractData.isPaused ? "text-red-400" : "text-green-400"
-                  }`}
-                >
-                  {contractData.isPaused ? "Paused" : "Active"}
-                </span>
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
