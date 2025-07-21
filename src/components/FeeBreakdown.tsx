@@ -54,7 +54,7 @@ export function FeeBreakdown({
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="overflow-auto">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
@@ -95,7 +95,7 @@ export function FeeBreakdown({
   const percentage = Number(process.env.NEXT_PUBLIC_RELAYER_FEE_PERCENTAGE || "1");
 
   return (
-    <div className={`transition-all duration-500 ease-in-out transform ${
+    <div className={`transition-all duration-500 ease-in-out transform mb-8 ${
       isHidden
         ? "opacity-0 scale-95 -translate-y-4 pointer-events-none"
         : "opacity-100 scale-100 translate-y-0"
@@ -137,11 +137,11 @@ export function FeeBreakdown({
             </div>
           </div>
 
-          {/* Percentage Fee */}
+          {/* Service Fee */}
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Info className="h-4 w-4 text-blue-500" />
-              <span className="text-sm font-medium">Service Fee ({percentage}%)</span>
+              <span className="text-sm font-medium">Service Fee (1%)</span>
             </div>
             <div className="text-right">
               <div className="font-semibold">{displayData.percentageFee.tokens} {tokenSymbol}</div>
@@ -151,47 +151,15 @@ export function FeeBreakdown({
 
           <Separator />
 
-          {/* Total Fee */}
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium">Total Fees</span>
+          {/* Total */}
+          <div className="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Total</span>
             <div className="text-right">
-              <div className="font-semibold text-red-600">{displayData.totalFee.tokens} {tokenSymbol}</div>
-              <div className="text-xs text-muted-foreground">{displayData.totalFee.usd}</div>
+              <div className="font-bold text-blue-800 dark:text-blue-200">
+                {(parseFloat(displayData.transferAmount.tokens) + parseFloat(displayData.totalFee.tokens)).toFixed(2)} {tokenSymbol}
+              </div>
             </div>
           </div>
-
-          {/* Net Amount */}
-          <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-200">
-            <span className="text-sm font-medium text-green-800">Recipient Receives</span>
-            <div className="text-right">
-              <div className="font-bold text-green-800">{displayData.netAmount.tokens} {tokenSymbol}</div>
-            </div>
-          </div>
-
-          {/* Gas Details (Collapsible) */}
-          <details className="mt-4">
-            <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
-              Gas Details
-            </summary>
-            <div className="mt-2 p-3 bg-muted rounded-lg space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span>ETH Price:</span>
-                <span>{displayData.ethPrice}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Gas Limit:</span>
-                <span>{displayData.gasInfo.gasLimit}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Gas Price:</span>
-                <span>{displayData.gasInfo.gasPrice}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Gas Cost (ETH):</span>
-                <span>{displayData.gasInfo.gasCostEth} ETH</span>
-              </div>
-            </div>
-          </details>
         </CardContent>
       </Card>
     </div>

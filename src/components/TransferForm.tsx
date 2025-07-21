@@ -18,6 +18,7 @@ import { createEIP712TypedData, createPermitTypedData, getDeadline } from "@/lib
 import { parseAmount } from "@/lib/utils";
 import { useContractData, useUserData } from "@/hooks/useContractData";
 import { useRelayTransaction } from "@/hooks/useRelayTransaction";
+import { useFeeBreakdownDisplay } from "@/hooks/useFeeCalculation";
 import { MetaTransfer } from "@/lib/schemas";
 import { alertUtils } from "@/lib/alert-store";
 import { coins } from "@/lib/coins";
@@ -70,7 +71,19 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
     },
   });
 
-  const fee = "0.001";
+  // Calculate fees using the fee breakdown hook
+  const { data: feeData } = useFeeBreakdownDisplay(
+    amount && selectedCoin ? {
+      tokenAddress: selectedCoin.value,
+      transferAmount: parseAmount(amount, selectedCoin.decimals).toString(),
+      tokenDecimals: selectedCoin.decimals,
+    } : null,
+  );
+
+  // Get the calculated fee from the fee breakdown
+  const calculatedFee = feeData?.feeBreakdown?.totalFeeTokenUnits 
+    ? (Number(feeData.feeBreakdown.totalFeeTokenUnits) / Math.pow(10, selectedCoin.decimals)).toFixed(6)
+    : "0.001"; // fallback
 
   // Simple ETH address validation (starts with 0x and is 42 characters long)
   const validateEthAddress = (addr: string) => {
@@ -102,7 +115,7 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
         token: selectedCoin.value,
         recipient: walletAddress,
         amount: parseAmount(amount, selectedCoin.decimals),
-        fee: parseAmount(fee, selectedCoin.decimals),
+        fee: parseAmount(calculatedFee, selectedCoin.decimals),
         deadline: getDeadline(10),
         nonce: userData?.nonce || "0",
       };
@@ -258,7 +271,7 @@ export function TransferForm({ onSuccess }: TransferFormProps) {
       {/* Expanded form fields */}
       <div
         className={`transition-all duration-500 ease-in-out overflow-hidden ${
-          isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+          isExpanded ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         {isExpanded && (
